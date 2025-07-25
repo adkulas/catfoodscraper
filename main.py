@@ -2,10 +2,11 @@
 
 import sys
 import asyncio
-from crawlers import global_pet_foods, store2
+from crawlers import store2
+from crawlers.globalpetfoods.crawler import GlobalPetFoodsCrawler
 
 SPIDERS = {
-	"globalpetfoods": global_pet_foods,
+	"globalpetfoods": GlobalPetFoodsCrawler(),
 	#"store2": store2,
 	# Add more spiders here as needed
 }
@@ -18,7 +19,7 @@ def main():
 
 	store = sys.argv[1]
 
-	spider = SPIDERS.get(store).spider
+	spider = SPIDERS.get(store)
 	if not spider:
 		print(f"[!] No spider found for '{store}'")
 		print(f"Available spiders: {', '.join(SPIDERS.keys())}")
