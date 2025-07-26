@@ -85,6 +85,8 @@ class GlobalPetFoodsCrawler:
 			self.queue.append(full_url)
 			self.parent[full_url] = url
 
+		
+
 
 	async def handle_product_page(self, url):
 		response = await self.client.get(url)
