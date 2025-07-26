@@ -49,7 +49,6 @@ class GlobalPetFoodsCrawler:
 		soup = BeautifulSoup(html, 'html.parser')
 
 		links = parse_brands(soup)
-		links = links[:1]
 		for link in links:
 			query = link.get('href')
 			brand_filter_link = urljoin(url, query)
