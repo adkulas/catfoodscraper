@@ -101,6 +101,6 @@ class GlobalPetFoodsCrawler:
 
 		brand_name = self.data[parse_brand_from_url(parent)]['brand']
 		print(brand_name)
-		# print(json.dumps(data, indent=2))
+		print(json.dumps(data, indent=2))
 
 spider = GlobalPetFoodsCrawler()

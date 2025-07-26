@@ -59,6 +59,14 @@ def parse_alt_size_for_product(soup, url):
 
 	return hrefs
 
+def parse_next_page(soup, url):
+	next_page = soup.find('a', string='Next')
+	parsed = urlparse(url)
+	base = f"{parsed.scheme}://{parsed.netloc}"
+	next_page_href = urljoin(base, next_page['href']) if next_page else None
+	return next_page_href
+
+
 def parse_brand_from_url(url):
 	parsed = urlparse(url)
 	query_params = parse_qs(parsed.query)

@@ -7,5 +7,6 @@ requires-python = ">=3.12"
 dependencies = [
     "beautifulsoup4>=4.13.4",
     "lxml>=6.0.0",
+    "pytest>=8.4.1",
     "rnet>=2.3.9",
 ]
