@@ -42,6 +42,13 @@ def parse_product(soup):
 		'nutritionaltable': nutritional_table
 	}
 
+def parse_alt_size_for_product(soup, url):
+	paths = [a['href'] for a in soup.select('div.size-box a.data-loader') if a.get("href")]
+	parsed = urlparse(url)
+	base = f"{parsed.scheme}://{parsed.netloc}"
+	hrefs = [urljoin(base, path) for path in paths]
+	return hrefs
+
 def parse_brand_from_url(url):
 	parsed = urlparse(url)
 	query_params = parse_qs(parsed.query)

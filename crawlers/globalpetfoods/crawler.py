@@ -1,7 +1,7 @@
 from utils.http_client import HttpClient
 from bs4 import BeautifulSoup
 from urllib.parse import urlparse, urljoin, parse_qs
-from .parser import parse_brands, parse_brand_product_links, parse_product, parse_brand_from_url
+from .parser import parse_brands, parse_brand_product_links, parse_product, parse_brand_from_url, parse_alt_size_for_product
 import json
 
 class GlobalPetFoodsCrawler:
@@ -49,6 +49,7 @@ class GlobalPetFoodsCrawler:
 		soup = BeautifulSoup(html, 'html.parser')
 
 		links = parse_brands(soup)
+		links = links[:3]
 		for link in links:
 			query = link.get('href')
 			brand_filter_link = urljoin(url, query)
@@ -91,11 +92,15 @@ class GlobalPetFoodsCrawler:
 		html = await response.text()
 		soup = BeautifulSoup(html, 'html.parser')
 		data = parse_product(soup)
+		links_to_variations = parse_alt_size_for_product(soup, url)
+		self.queue[:0] = links_to_variations
 
 		parent = self.parent[url]
+		for link in links_to_variations:
+			self.parent[link] = parent
 
 		brand_name = self.data[parse_brand_from_url(parent)]['brand']
 		print(brand_name)
-		print(json.dumps(data, indent=2))
+		# print(json.dumps(data, indent=2))
 
 spider = GlobalPetFoodsCrawler()
