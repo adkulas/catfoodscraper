@@ -1,5 +1,5 @@
 from bs4 import BeautifulSoup
-from urllib.parse import urlparse, urljoin, parse_qs
+from urllib.parse import urlparse, urljoin, parse_qs, urlunparse
 
 def parse_brands(soup):
 	return [a for a in soup.find_all("a", class_="data-loader") if a.get("href")]
@@ -46,7 +46,17 @@ def parse_alt_size_for_product(soup, url):
 	paths = [a['href'] for a in soup.select('div.size-box a.data-loader') if a.get("href")]
 	parsed = urlparse(url)
 	base = f"{parsed.scheme}://{parsed.netloc}"
-	hrefs = [urljoin(base, path) for path in paths]
+	query = parsed.query
+	
+	hrefs = []
+	for path in paths:
+		fixed_path = path.replace('/products/', '/products/brantford/')
+		full_url = urljoin(base, fixed_path)
+		parsed_full = urlparse(full_url)
+		# Reconstruct with query from original URL
+		rebuilt = parsed_full._replace(query=query)
+		hrefs.append(urlunparse(rebuilt))
+
 	return hrefs
 
 def parse_brand_from_url(url):
