@@ -1,8 +1,8 @@
 from bs4 import BeautifulSoup
-from urllib.parse import urlparse, urljoin, parse_qs, urlunparse
+from urllib.parse import urlparse, urljoin, urlunparse
 
 def parse_brands(soup):
-	return [a for a in soup.find_all("a", class_="data-loader") if a.get("href")]
+	return [(a["href"], a.get_text(strip=True)) for a in soup.find_all("a", class_="data-loader") if a.get("href")]
 
 def parse_brand_product_links(soup):
 	return [a["href"] for a in soup.find_all("a", class_="cart-btn") if a.get("href")]
@@ -10,7 +10,7 @@ def parse_brand_product_links(soup):
 def parse_product(soup):
 	title = soup.select_one('h1[tabindex="0"]').get_text(" ", strip=True)
 	category = soup.select_one('h3.categor-title').get_text(" ", strip=True)
-	price = float(soup.select_one('span.current-price').get_text(strip=True).replace('$',''))
+	price = soup.select_one('span.current-price').get_text(strip=True)
 	size_text = soup.select_one('div.size-box h3.option-label').get_text(strip=True)
 	description = soup.select_one('div#description p').get_text(strip=True)
 	description_table = {}
@@ -65,12 +65,4 @@ def parse_next_page(soup, url):
 	base = f"{parsed.scheme}://{parsed.netloc}"
 	next_page_href = urljoin(base, next_page['href']) if next_page else None
 	return next_page_href
-
-
-def parse_brand_from_url(url):
-	parsed = urlparse(url)
-	query_params = parse_qs(parsed.query)
-	brand_list = query_params.get('brand')
-	brand_id = brand_list[0] if brand_list else None
-	return brand_id
 

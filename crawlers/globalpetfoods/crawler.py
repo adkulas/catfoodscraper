@@ -1,7 +1,7 @@
 from utils.http_client import HttpClient
 from bs4 import BeautifulSoup
 from urllib.parse import urlparse, urljoin, parse_qs
-from .parser import parse_brands, parse_brand_product_links, parse_product, parse_brand_from_url, parse_alt_size_for_product
+from .parser import parse_brands, parse_brand_product_links, parse_product, parse_alt_size_for_product
 import json
 
 class GlobalPetFoodsCrawler:
@@ -12,14 +12,14 @@ class GlobalPetFoodsCrawler:
 		# tree structure to crawl site
 		self.visited = set()
 		self.queue = []
-		self.parent = {}
 
-		self.data = {}
+		self.products = []
+		self.brand_lookup = {}
+
 
 	async def crawl(self):
 
 		self.queue.append(self.entryUrl)
-		self.parent[self.entryUrl] = None
 
 		while self.queue:
 			url = self.queue.pop(0)
@@ -28,6 +28,9 @@ class GlobalPetFoodsCrawler:
 
 			await self.handle(url)
 			self.visited.add(url)
+
+
+		print(json.dumps(self.products, indent=2))
 
 
 	async def handle(self, url):
@@ -41,68 +44,65 @@ class GlobalPetFoodsCrawler:
 		else:
 			await self.handle_main_page(url)
 
+
 	async def handle_main_page(self, url):
+
 		response = await self.client.get(url)
-		print(response.status_code)
 
 		html = await response.text()
 		soup = BeautifulSoup(html, 'html.parser')
 
 		links = parse_brands(soup)
-		links = links[:3]
-		for link in links:
-			query = link.get('href')
-			brand_filter_link = urljoin(url, query)
-			self.queue.append(brand_filter_link)
-			self.parent[brand_filter_link] = url
+		for query, brand_name in links:
+			brand_filtered_products_link = urljoin(url, query)
+			self.queue.append(brand_filtered_products_link)
 			
-			brand_name = link.text.strip()
 			query_params = parse_qs(query.lstrip('?'))
 			brand_list = query_params.get('brand')
 			brand_id = brand_list[0] if brand_list else None
-
-			self.data[brand_id] = {
-				'brand': brand_name,
-				'products': {}
+			
+			self.brand_lookup[brand_filtered_products_link] = {
+				'brand_id': brand_id,
+				'brand_name': brand_name,
 			}
 
-	
+
 	async def handle_brand_products(self, url):
 
 		response = await self.client.get(url)
-		print(response.status_code)
 
 		html = await response.text()
 		soup = BeautifulSoup(html, 'html.parser')
 
-		links = soup.find_all('a', class_='cart-btn')
+		links = parse_brand_product_links(soup)
+		links = links[:1]
 		for link in links:
-			href = link.get('href')
 			parsed = urlparse(url)
 			base = f"{parsed.scheme}://{parsed.netloc}"
-			full_url = urljoin(base, href)
+			full_url = urljoin(base, link)
 
 			self.queue.append(full_url)
-			self.parent[full_url] = url
-
-		
-
+			self.brand_lookup[full_url] = self.brand_lookup[url]
 
 	async def handle_product_page(self, url):
+
 		response = await self.client.get(url)
-		print(response.status_code)
+
 		html = await response.text()
 		soup = BeautifulSoup(html, 'html.parser')
-		data = parse_product(soup)
+
+		brand_name = self.brand_lookup[url]['brand_name']
+		product = parse_product(soup)
+
+		product['url'] = url
+		product['brand'] = brand_name
+
+		self.products.append(product)
+
 		links_to_variations = parse_alt_size_for_product(soup, url)
 		self.queue[:0] = links_to_variations
 
-		parent = self.parent[url]
 		for link in links_to_variations:
-			self.parent[link] = parent
-
-		brand_name = self.data[parse_brand_from_url(parent)]['brand']
-		print(brand_name)
-		print(json.dumps(data, indent=2))
+			self.brand_lookup[link] = self.brand_lookup[url]
 
 spider = GlobalPetFoodsCrawler()
