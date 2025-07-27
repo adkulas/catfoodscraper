@@ -3,6 +3,7 @@ from bs4 import BeautifulSoup
 from urllib.parse import urlparse, urljoin, parse_qs
 from .parser import parse_brands, parse_brand_product_links, parse_product, parse_alt_size_for_product
 import json
+from datetime import datetime, timezone
 
 class GlobalPetFoodsCrawler:
 	def __init__(self):
@@ -96,6 +97,8 @@ class GlobalPetFoodsCrawler:
 
 		product['url'] = url
 		product['brand'] = brand_name
+		product['timestamp'] = datetime.now(timezone.utc).replace(microsecond=0).isoformat()
+
 
 		self.products.append(product)
 
