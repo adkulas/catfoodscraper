@@ -5,7 +5,7 @@ import asyncio
 import random
 
 class HttpClient:
-	def __init__(self, *, proxies=None, delay_range=(1.0, 2.5)):
+	def __init__(self, *, proxies=None, delay_range=(0.9, 2.0)):
 		self.client = Client(
 			impersonate=Impersonate.Firefox136,
 			proxies=proxies

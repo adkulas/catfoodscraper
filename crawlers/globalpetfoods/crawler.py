@@ -76,7 +76,6 @@ class GlobalPetFoodsCrawler:
 		soup = BeautifulSoup(html, 'html.parser')
 
 		links = parse_brand_product_links(soup)
-		links = links[:1]
 		for link in links:
 			parsed = urlparse(url)
 			base = f"{parsed.scheme}://{parsed.netloc}"
