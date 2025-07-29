@@ -108,5 +108,3 @@ class GlobalPetFoodsCrawler:
 
 		for link in links_to_variations:
 			self.brand_lookup[link] = self.brand_lookup[url]
-
-spider = GlobalPetFoodsCrawler()
