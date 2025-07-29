@@ -8,38 +8,43 @@ def parse_brand_product_links(soup):
 	return [a["href"] for a in soup.find_all("a", class_="cart-btn") if a.get("href")]
 
 def parse_product(soup):
-	title = soup.select_one('h1[tabindex="0"]').get_text(" ", strip=True)
-	category = soup.select_one('h3.categor-title').get_text(" ", strip=True)
-	price = soup.select_one('span.current-price').get_text(strip=True)
-	size_text = soup.select_one('div.size-box h3.option-label').get_text(strip=True)
-	description = soup.select_one('div#description p').get_text(strip=True)
-	description_table = {}
-	description_rows = soup.select('div#description div.table-info div.row')
-	for description_row in description_rows:
-		divs = description_row.find_all('div', recursive=False)
-		if len(divs) >= 2:
-			label = divs[0].get_text(" ", strip=True)
-			value = divs[1].get_text(" ", strip=True)
-			description_table[label] = value
-	ingredients = soup.select_one('div#nutritional-info p').get_text(strip=True)
-	nutritional_table = {}
-	nutritional_rows = soup.select('div#nutritional-info div.table-info div.row')
-	for nutritional_row in nutritional_rows:
-		divs = nutritional_row.find_all('div', recursive=False)
-		if len(divs) >= 2:
-			label = divs[0].get_text(" ", strip=True)
-			value = divs[1].get_text(" ", strip=True)
-			nutritional_table[label] = value
+	def safe_text(selector, default="", **kwargs):
+		elem = soup.select_one(selector)
+		return elem.get_text(**kwargs) if elem else default
+
+	def parse_table_rows(rows):
+		table = {}
+		for row in rows:
+			divs = row.find_all('div', recursive=False)
+			if len(divs) >= 2:
+				label = divs[0].get_text(" ", strip=True)
+				value = divs[1].get_text(" ", strip=True)
+				table[label] = value
+		return table
+
+	title = safe_text('h1[tabindex="0"]', default="", strip=True, separator=" ")
+	category = safe_text('h3.categor-title', default="", strip=True, separator=" ")
+	price = safe_text('span.current-price', default="", strip=True)
+	size_text = safe_text('div.size-box h3.option-label', default="", strip=True)
+	description = safe_text('div#description p', default="", strip=True)
+
+	description_rows = soup.select('div#description div.table-info div.row') or []
+	description_table = parse_table_rows(description_rows)
+
+	ingredients = safe_text('div#nutritional-info p', default="", strip=True)
+
+	nutritional_rows = soup.select('div#nutritional-info div.table-info div.row') or []
+	nutritional_table = parse_table_rows(nutritional_rows)
 
 	return {
-		'title': title,
-		'category': category,
-		'price': price,
-		'size': size_text,
-		'description': description,
-		'additionalDescription': description_table,
-		'ingredients': ingredients,
-		'nutritionaltable': nutritional_table
+		"title": title,
+		"category": category,
+		"price": price,
+		"size": size_text,
+		"description": description,
+		"description_table": description_table,
+		"ingredients": ingredients,
+		"nutritional_table": nutritional_table,
 	}
 
 def parse_alt_size_for_product(soup, url):

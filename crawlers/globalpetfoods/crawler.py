@@ -30,8 +30,10 @@ class GlobalPetFoodsCrawler:
 			await self.handle(url)
 			self.visited.add(url)
 
-		with open("data/globalpetfoods/products.json", "w", encoding="utf-8") as f:
-			json.dump(self.products, f, indent=2, ensure_ascii=False)
+		with open("data/globalpetfoods/productsRAW.jsonl", "w", encoding="utf-8") as f:
+			for product in self.products:
+				json.dump(product, f, ensure_ascii=False)
+				f.write("\n")
 
 
 	async def handle(self, url):
