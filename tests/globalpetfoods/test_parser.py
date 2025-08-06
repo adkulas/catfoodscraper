@@ -2,13 +2,14 @@ import sys
 import os
 import pytest
 
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../../..')))
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../../..")))
 
 from bs4 import BeautifulSoup
 from crawlers.globalpetfoods.parser import parse_next_page
 
+
 def test_parse_next_page():
-	html = """
+    html = """
 	<html>
 		<body>
 			<!-- PAGINATION -->
@@ -46,15 +47,21 @@ def test_parse_next_page():
 		</body>
 	</html>
 	"""
-	soup = BeautifulSoup(html, "html.parser")
-	current_url = "https://brantford.globalpetfoods.com/products/list/?page=1&categories=0004"
+    soup = BeautifulSoup(html, "html.parser")
+    current_url = (
+        "https://brantford.globalpetfoods.com/products/list/?page=1&categories=0004"
+    )
 
-	result = parse_next_page(soup, current_url)
+    result = parse_next_page(soup, current_url)
 
-	assert result == "https://brantford.globalpetfoods.com/products/list/?categories=0004&page=2"
+    assert (
+        result
+        == "https://brantford.globalpetfoods.com/products/list/?categories=0004&page=2"
+    )
+
 
 def test_parse_next_page_no_pagination():
-	html = """
+    html = """
 	<html>
 		<body>
 			<!-- PAGINATION -->
@@ -89,9 +96,11 @@ def test_parse_next_page_no_pagination():
 		</body>
 	</html>
 	"""
-	soup = BeautifulSoup(html, "html.parser")
-	current_url = "https://brantford.globalpetfoods.com/products/list/?page=1&categories=0004"
+    soup = BeautifulSoup(html, "html.parser")
+    current_url = (
+        "https://brantford.globalpetfoods.com/products/list/?page=1&categories=0004"
+    )
 
-	result = parse_next_page(soup, current_url)
+    result = parse_next_page(soup, current_url)
 
-	assert result == None
+    assert result == None

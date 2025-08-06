@@ -1,110 +1,115 @@
 from utils.http_client import HttpClient
 from bs4 import BeautifulSoup
 from urllib.parse import urlparse, urljoin, parse_qs
-from .parser import parse_brands, parse_brand_product_links, parse_product, parse_alt_size_for_product
+from .parser import (
+    parse_brands,
+    parse_brand_product_links,
+    parse_product,
+    parse_alt_size_for_product,
+)
 import json
 from datetime import datetime, timezone
 
+
 class GlobalPetFoodsCrawler:
-	def __init__(self):
-		self.client = HttpClient()
-		self.entryUrl = "https://brantford.globalpetfoods.com/products/list/?categories=00040003"
-		
-		# tree structure to crawl site
-		self.visited = set()
-		self.queue = []
+    def __init__(self):
+        self.client = HttpClient()
+        self.entryUrl = (
+            "https://brantford.globalpetfoods.com/products/list/?categories=00040003"
+        )
 
-		self.products = []
-		self.brand_lookup = {}
+        # tree structure to crawl site
+        self.visited = set()
+        self.queue = []
 
+        self.products = []
+        self.brand_lookup = {}
 
-	async def crawl(self):
+    async def crawl(self):
 
-		self.queue.append(self.entryUrl)
+        self.queue.append(self.entryUrl)
 
-		while self.queue:
-			url = self.queue.pop(0)
-			if url in self.visited:
-				continue
+        while self.queue:
+            url = self.queue.pop(0)
+            if url in self.visited:
+                continue
 
-			await self.handle(url)
-			self.visited.add(url)
+            await self.handle(url)
+            self.visited.add(url)
 
-		with open("data/globalpetfoods/productsRAW.jsonl", "w", encoding="utf-8") as f:
-			for product in self.products:
-				json.dump(product, f, ensure_ascii=False)
-				f.write("\n")
+        with open("data/globalpetfoods/productsRAW.jsonl", "w", encoding="utf-8") as f:
+            for product in self.products:
+                json.dump(product, f, ensure_ascii=False)
+                f.write("\n")
 
+    async def handle(self, url):
+        parsed = urlparse(url)
+        query_params = parse_qs(parsed.query)
 
-	async def handle(self, url):
-		parsed = urlparse(url)
-		query_params = parse_qs(parsed.query)
+        if "brand" in query_params:
+            await self.handle_brand_products(url)
+        elif "list" not in parsed.path.lower() and "products" in parsed.path.lower():
+            await self.handle_product_page(url)
+        else:
+            await self.handle_main_page(url)
 
-		if 'brand' in query_params:
-			await self.handle_brand_products(url)
-		elif 'list' not in parsed.path.lower() and 'products' in parsed.path.lower():
-			await self.handle_product_page(url)
-		else:
-			await self.handle_main_page(url)
+    async def handle_main_page(self, url):
 
+        response = await self.client.get(url)
 
-	async def handle_main_page(self, url):
+        html = await response.text()
+        soup = BeautifulSoup(html, "html.parser")
 
-		response = await self.client.get(url)
+        links = parse_brands(soup)
+        for query, brand_name in links:
+            brand_filtered_products_link = urljoin(url, query)
+            self.queue.append(brand_filtered_products_link)
 
-		html = await response.text()
-		soup = BeautifulSoup(html, 'html.parser')
+            query_params = parse_qs(query.lstrip("?"))
+            brand_list = query_params.get("brand")
+            brand_id = brand_list[0] if brand_list else None
 
-		links = parse_brands(soup)
-		for query, brand_name in links:
-			brand_filtered_products_link = urljoin(url, query)
-			self.queue.append(brand_filtered_products_link)
-			
-			query_params = parse_qs(query.lstrip('?'))
-			brand_list = query_params.get('brand')
-			brand_id = brand_list[0] if brand_list else None
-			
-			self.brand_lookup[brand_filtered_products_link] = {
-				'brand_id': brand_id,
-				'brand_name': brand_name,
-			}
+            self.brand_lookup[brand_filtered_products_link] = {
+                "brand_id": brand_id,
+                "brand_name": brand_name,
+            }
 
+    async def handle_brand_products(self, url):
 
-	async def handle_brand_products(self, url):
+        response = await self.client.get(url)
 
-		response = await self.client.get(url)
+        html = await response.text()
+        soup = BeautifulSoup(html, "html.parser")
 
-		html = await response.text()
-		soup = BeautifulSoup(html, 'html.parser')
+        links = parse_brand_product_links(soup)
+        for link in links:
+            parsed = urlparse(url)
+            base = f"{parsed.scheme}://{parsed.netloc}"
+            full_url = urljoin(base, link)
 
-		links = parse_brand_product_links(soup)
-		for link in links:
-			parsed = urlparse(url)
-			base = f"{parsed.scheme}://{parsed.netloc}"
-			full_url = urljoin(base, link)
+            self.queue.append(full_url)
+            self.brand_lookup[full_url] = self.brand_lookup[url]
 
-			self.queue.append(full_url)
-			self.brand_lookup[full_url] = self.brand_lookup[url]
+    async def handle_product_page(self, url):
 
-	async def handle_product_page(self, url):
+        response = await self.client.get(url)
 
-		response = await self.client.get(url)
+        html = await response.text()
+        soup = BeautifulSoup(html, "html.parser")
 
-		html = await response.text()
-		soup = BeautifulSoup(html, 'html.parser')
+        brand_name = self.brand_lookup[url]["brand_name"]
+        product = parse_product(soup)
 
-		brand_name = self.brand_lookup[url]['brand_name']
-		product = parse_product(soup)
+        product["url"] = url
+        product["brand"] = brand_name
+        product["timestamp"] = (
+            datetime.now(timezone.utc).replace(microsecond=0).isoformat()
+        )
 
-		product['url'] = url
-		product['brand'] = brand_name
-		product['timestamp'] = datetime.now(timezone.utc).replace(microsecond=0).isoformat()
+        self.products.append(product)
 
+        links_to_variations = parse_alt_size_for_product(soup, url)
+        self.queue[:0] = links_to_variations
 
-		self.products.append(product)
-
-		links_to_variations = parse_alt_size_for_product(soup, url)
-		self.queue[:0] = links_to_variations
-
-		for link in links_to_variations:
-			self.brand_lookup[link] = self.brand_lookup[url]
+        for link in links_to_variations:
+            self.brand_lookup[link] = self.brand_lookup[url]
