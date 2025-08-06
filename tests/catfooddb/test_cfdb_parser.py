@@ -9,30 +9,30 @@ def test_parse_review_links():
     html = """
         <html>
             <body>
-                <a href="product/one">
+                <a href="product/zoe/P%C3%A2t%C3%A9+With+Free+Run+Chicken">
                     <button class="btn btn-review">Review 1</button>
                 </a>
-                <a href="product/two">
+                <a href="product/zoe/P%C3%A2t%C3%A9+With+Wild-Caught+Fish">
                     <button class="btn btn-review">Review 2</button>
                 </a>
                 <a href="product/three">
                     <button class="btn other-class">Not a review</button>
                 </a>
-                <a href="product/four">
-                    <button class="btn btn-review">Review 4</button>
+                <a href="product/zoe/P%C3%A2t%C3%A9+With+Fresh+Turkey">
+                    <button class="btn btn-list-item center-block btn-review buy-now bold" style="width:100%; margin-bottom: 10px">Full CatFoodDB Review</button>
                 </a>
             </body>
         </html>
     """
 
     soup = BeautifulSoup(html, "html.parser")
-    current_url = "https://catfooddb.com/brand/xyz"
+    current_url = "https://catfooddb.com/brand/zoe"
 
     result = parse_review_links(soup, current_url)
-
+    print(result)
     expected = [
-        "https://catfooddb.com/brand/product/one",
-        "https://catfooddb.com/brand/product/product/two",
-        "https://catfooddb.com/brand/product/product/product/four",
+        "https://catfooddb.com/product/zoe/P%C3%A2t%C3%A9+With+Free+Run+Chicken",
+        "https://catfooddb.com/product/zoe/P%C3%A2t%C3%A9+With+Wild-Caught+Fish",
+        "https://catfooddb.com/product/zoe/P%C3%A2t%C3%A9+With+Fresh+Turkey",
     ]
     assert result == expected

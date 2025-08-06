@@ -13,13 +13,13 @@ def parse_brand_links(soup, url):
 
 
 def parse_review_links(soup, url):
-    parsed = furl(url)
+    base = furl(url).origin
     buttons = soup.find_all("button", class_="btn-review")
     links = []
     for button in buttons:
         a = button.find_parent("a")
         if a and a.get("href"):
-            link = parsed.join(a["href"]).url
+            link = furl(base).join(a["href"]).url
             links.append(link)
 
     return links

@@ -41,6 +41,8 @@ class CatFoodDb:
 
         if url == self.entryUrl:
             await self.handle_main_page(url)
+        if "brand" in f.path.segments:
+            await self.handle_brand_page(url)
 
     async def handle_main_page(self, url):
 
