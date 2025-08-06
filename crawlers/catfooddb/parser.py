@@ -10,3 +10,23 @@ def parse_brand_links(soup, url):
     }
 
     return list(sorted(links))
+
+
+def parse_review_links(soup, url):
+    parsed = furl(url)
+    buttons = soup.find_all("button", class_="btn-review")
+    links = []
+    for button in buttons:
+        a = button.find_parent("a")
+        if a and a.get("href"):
+            link = parsed.join(a["href"]).url
+            links.append(link)
+
+    return links
+
+
+def parse_brand(soup):
+    bold_tag = soup.select_one("div.panel-heading > h2 > b")
+    if bold_tag:
+        return bold_tag.get_text(" ", strip=True)
+    return None

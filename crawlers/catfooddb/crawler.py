@@ -1,7 +1,8 @@
+from sys import stderr
 from utils.http_client import HttpClient
 from bs4 import BeautifulSoup
 from furl import furl
-from .parser import parse_brand_links
+from .parser import parse_brand_links, parse_brand
 import json
 from datetime import datetime, timezone
 
@@ -13,17 +14,17 @@ class CatFoodDb:
 
         # tree structure to crawl site
         self.visited = set()
-        self.queue = []
+        self.stack = []
 
         self.products = []
         self.brand_lookup = {}
 
     async def crawl(self):
 
-        self.queue.append(self.entryUrl)
+        self.stack.append(self.entryUrl)
 
-        while self.queue:
-            url = self.queue.pop(0)
+        while self.stack:
+            url = self.stack.pop()
             if url in self.visited:
                 continue
 
@@ -47,12 +48,25 @@ class CatFoodDb:
 
         html = await response.text()
         soup = BeautifulSoup(html, "html.parser")
-
         links = parse_brand_links(soup, url)
-        [print(l) for l in links]
+        self.stack += links
 
     async def handle_brand_page(self, url):
-        pass
+
+        response = await self.client.get(url)
+
+        html = await response.text()
+        soup = BeautifulSoup(html, "html.parser")
+        brand = parse_brand(soup)
+        if brand == None:
+            print("Error: could not get brand name", file=stderr)
+            return
+
+        links = parse_brand_links(soup, url)
+        for link in links:
+            print(brand, link)
+            self.brand_lookup[link] = brand
+            self.stack.append(link)
 
     async def handle_review_page(self, url):
         pass
