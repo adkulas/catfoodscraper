@@ -2,7 +2,7 @@ from sys import stderr
 from utils.http_client import HttpClient
 from bs4 import BeautifulSoup
 from furl import furl
-from .parser import parse_brand_links, parse_brand
+from .parser import parse_brand_links, parse_brand, parse_review_links
 import json
 from datetime import datetime, timezone
 
@@ -64,7 +64,7 @@ class CatFoodDb:
             print("Error: could not get brand name", file=stderr)
             return
 
-        links = parse_brand_links(soup, url)
+        links = parse_review_links(soup, url)
         for link in links:
             print(brand, link)
             self.brand_lookup[link] = brand
