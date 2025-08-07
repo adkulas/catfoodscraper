@@ -31,14 +31,15 @@ def parse_review_links(soup, url):
 
     return links
 
+
 def parse_product_review(soup):
-    product_name = soup.select_one('h1').get_text(" ", strip=True)
-    
-    quick_analysis_h4s = soup.find('h3').find_parent().find_all('h4')
-    ingredient_score = len(soup.select('i.ingredient-paws'))
-    nutrition_score = len(soup.select('i.nutrition-paws'))
-    potential_allergens = quick_analysis_h4s[2].find('span').get_text(" ", strip=True)
-    kcal_100g_estimated = quick_analysis_h4s[3].find('span').get_text(" ", strip=True)
+    product_name = soup.select_one("h1").get_text(" ", strip=True)
+
+    quick_analysis_h4s = soup.find("h3").find_parent().find_all("h4")
+    ingredient_score = len(soup.select("i.ingredient-paws"))
+    nutrition_score = len(soup.select("i.nutrition-paws"))
+    potential_allergens = quick_analysis_h4s[2].find("span").get_text(" ", strip=True)
+    kcal_100g_estimated = quick_analysis_h4s[3].find("span").get_text(" ", strip=True)
 
     general_conclusion_text = ""
     elem = soup.select_one("div > span")
@@ -49,43 +50,44 @@ def parse_product_review(soup):
         result = []
         list_items = soup.select(selector)
         for ingredient in list_items:
-            is_top_ingredient = 'top' in ingredient.get('class', [])
-            result.append({
-                'ingredient': ingredient.get_text(" ", strip=True),
-                'is_top': is_top_ingredient
-            })
+            is_top_ingredient = "top" in ingredient.get("class", [])
+            result.append(
+                {
+                    "ingredient": ingredient.get_text(" ", strip=True),
+                    "is_top": is_top_ingredient,
+                }
+            )
         return result
 
-    quality_ingredients_selector = 'div.panel-success ul.ingredients > li'
+    quality_ingredients_selector = "div.panel-success ul.ingredients > li"
     quality_ingredients = get_ingredients_from_panel(quality_ingredients_selector)
-    
-    questionable_ingredients_selector = 'div.panel-danger ul.ingredients > li'
-    questionable_ingredients = get_ingredients_from_panel(questionable_ingredients_selector)
 
-    potential_allergens_selector = 'div.panel-warning ul.ingredients > li'
-    potential_allergen_ingredients = get_ingredients_from_panel(potential_allergens_selector)
-    
-    allergen_alert_text = ''
-    
-    nutritional_summary_list_elem = soup.selector('ul')[-1]
+    questionable_ingredients_selector = "div.panel-danger ul.ingredients > li"
+    questionable_ingredients = get_ingredients_from_panel(
+        questionable_ingredients_selector
+    )
 
+    potential_allergens_selector = "div.panel-warning ul.ingredients > li"
+    potential_allergen_ingredients = get_ingredients_from_panel(
+        potential_allergens_selector
+    )
 
+    allergen_alert_text = ""
+
+    nutritional_summary_list_elem = soup.selector("ul")[-1]
 
     return {
-        'product_name': product_name,
-        'ingredient_score': ingredient_score,
-        'nutrition_score': nutrition_score,
-        'potential_allergens': potential_allergens,
-        'energy_density': kcal_100g_estimated,
-        'overall_quality': general_conclusion_text,
-        'ingredients' : {
-            'quality_ingredients': quality_ingredients,
-            'questionable_ingredients': questionable_ingredients,
-            'potential_allergens': potential_allergen_ingredients
+        "product_name": product_name,
+        "ingredient_score": ingredient_score,
+        "nutrition_score": nutrition_score,
+        "potential_allergens": potential_allergens,
+        "energy_density": kcal_100g_estimated,
+        "overall_quality": general_conclusion_text,
+        "ingredients": {
+            "quality_ingredients": quality_ingredients,
+            "questionable_ingredients": questionable_ingredients,
+            "potential_allergens": potential_allergen_ingredients,
         },
-        'allergen_alert_text': '',
-        'ingredient_summary_text': '',
+        "allergen_alert_text": "",
+        "ingredient_summary_text": "",
     }
-
-    
-

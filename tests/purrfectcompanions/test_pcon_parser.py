@@ -5,6 +5,7 @@ import json
 from bs4 import BeautifulSoup
 from sites.purrfectcompanions.parser import parse_profile_page
 
+
 def test_parse_profile_page():
     with open("tests/purrfectcompanions/profilepage.html", "r", encoding="utf-8") as f:
         html = f.read()

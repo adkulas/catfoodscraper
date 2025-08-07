@@ -9,7 +9,7 @@ from sites.purrfectcompanions.crawler import PurrfectCompanions
 SPIDERS = {
     "globalpetfoods": GlobalPetFoodsCrawler(),
     "catfooddb": CatFoodDb(),
-    "purrfectcompanions": PurrfectCompanions()
+    "purrfectcompanions": PurrfectCompanions(),
     # Add more spiders here as needed
 }
 
