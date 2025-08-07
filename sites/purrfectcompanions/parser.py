@@ -11,31 +11,66 @@ def parse_profile_links(soup, url):
 def parse_profile_page(soup):
     name = soup.select_one('h1.p-name').get_text(" ", strip=True)
 
+    all_p_tags = soup.select('div.image-subtitle > p')
     appearance = {}
-    appearance_text = soup.select_one('div.image-subtitle > p').get_text("\n", strip=True)
-    # lines = appearance_text.splitlines()
-    # for line in lines:
-    #     if ':' not in line:
-    #         continue
-    #     key, value = line.split(':', 1)
-    #     appearance[key.strip()] = value.strip()
+    appearance_text = ''
+    for p in all_p_tags:
+        if p.get_text(strip=True).startswith('Breed:'):
+            appearance_text = p.get_text("|")
+            break
+    for item in appearance_text.split('|'):
+        if not item.strip():
+            continue
+        kv_pair = list(filter(None, item.split(':')))
+        if len(kv_pair) != 2:
+            continue
+        key = kv_pair[0].strip()
+        value = kv_pair[1].strip()
+        appearance[key] = value
+
 
     medical = {}
-    medical_text = soup.select('div.image-subtitle > p')[2].get_text()  
-    # lines = medical_text.splitlines()
-    # for line in lines:
-    #     if ':' not in line:
-    #         continue
-    #     key, value = line.split(':', 1)
-    #     medical[key.strip()] = value.strip()
+    medical_text = ''
+    for p in all_p_tags:
+        if p.get_text(strip=True).startswith('Spayed'):
+            medical_text = p.get_text("|")
+            break
+    for item in medical_text.split('|'):
+        if not item.strip():
+            continue
+        kv_pair = list(filter(None, item.split(':')))
+        if len(kv_pair) != 2:
+            continue
+        key = kv_pair[0].strip()
+        value = kv_pair[1].strip()
+        medical[key] = value
+
 
     description = soup.select_one('div > h3 + p').get_text(" ", strip=True)
 
     return {
         'name': name,
-        'appearance': appearance_text,
-        'medical': medical_text,
-        'description': description
+        'appearance': appearance,
+        'medical': medical,
+        'description': description,
+        'appearance_raw': appearance_text,
+        'medical_raw': medical_text
     }
+
+    
+def parse_category(url):
+    f = furl(url)
+    url_path = f.path.segments
+
+    if "male-cats" in url_path:
+        return "adult"
+    elif "female-cats" in url_path:
+        return "adult"
+    elif "male-kittens" in url_path:
+        return "kitten"
+    elif "female-kittens" in url_path:
+        return "kitten"
+    else:
+        return ""
 
     

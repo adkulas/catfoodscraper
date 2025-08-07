@@ -45,7 +45,7 @@ def parse_product_review(soup):
     if elem:
         general_conclusion_text = elem.get_text(" ", strip=True)
 
-    def get_ingredents_from_panel(selector):
+    def get_ingredients_from_panel(selector):
         result = []
         list_items = soup.select(selector)
         for ingredient in list_items:
@@ -57,13 +57,13 @@ def parse_product_review(soup):
         return result
 
     quality_ingredients_selector = 'div.panel-success ul.ingredients > li'
-    quality_ingredients = get_ingredents_from_panel(quality_ingredients_selector)
+    quality_ingredients = get_ingredients_from_panel(quality_ingredients_selector)
     
     questionable_ingredients_selector = 'div.panel-danger ul.ingredients > li'
-    questionable_ingredients = get_ingredents_from_panel(questionable_ingredients_selector)
+    questionable_ingredients = get_ingredients_from_panel(questionable_ingredients_selector)
 
     potential_allergens_selector = 'div.panel-warning ul.ingredients > li'
-    potential_allergen_ingredients = get_ingredents_from_panel(potential_allergens_selector)
+    potential_allergen_ingredients = get_ingredients_from_panel(potential_allergens_selector)
     
     allergen_alert_text = ''
     
