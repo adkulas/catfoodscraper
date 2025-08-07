@@ -2,12 +2,14 @@
 
 import sys
 import asyncio
-from crawlers.catfooddb.crawler import CatFoodDb
-from crawlers.globalpetfoods.crawler import GlobalPetFoodsCrawler
+from sites.catfooddb.crawler import CatFoodDb
+from sites.globalpetfoods.crawler import GlobalPetFoodsCrawler
+from sites.purrfectcompanions.crawler import PurrfectCompanions
 
 SPIDERS = {
     "globalpetfoods": GlobalPetFoodsCrawler(),
     "catfooddb": CatFoodDb(),
+    "purrfectcompanions": PurrfectCompanions()
     # Add more spiders here as needed
 }
 

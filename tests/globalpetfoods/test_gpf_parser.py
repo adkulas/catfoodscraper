@@ -2,7 +2,7 @@ import sys
 import os
 import pytest
 from bs4 import BeautifulSoup
-from crawlers.globalpetfoods.parser import parse_next_page
+from sites.globalpetfoods.parser import parse_next_page
 
 
 def test_parse_next_page():

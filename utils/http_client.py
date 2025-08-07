@@ -24,3 +24,13 @@ class HttpClient:
 
     async def _random_delay(self):
         await asyncio.sleep(random.uniform(self.min_delay, self.max_delay))
+
+    async def download_image(self, url: str, path: str):
+        print(f"[IMG] Downloading {url} -> {path}")
+        resp = await self.get(url, delay=False)
+        if resp.status_code == 200:
+            with open(path, "wb") as f:
+                f.write(await resp.aread())
+            print(f"[IMG] Saved to {path}")
+        else:
+            print(f"[IMG] Failed to download ({resp.status_code})")

@@ -2,7 +2,7 @@ import sys
 import os
 import pytest
 from bs4 import BeautifulSoup
-from crawlers.catfooddb.parser import parse_review_links
+from sites.catfooddb.parser import parse_review_links
 
 
 def test_parse_review_links():
