@@ -2,7 +2,7 @@ from sys import stderr
 from utils.http_client import HttpClient
 from bs4 import BeautifulSoup
 from furl import furl
-from .parser import parse_profile_links, parse_profile_page, parse_category
+from .parser import parse_profile_links, parse_profile_page, parse_category, parse_image_url
 import json
 from datetime import datetime, timezone
 
@@ -65,9 +65,13 @@ class PurrfectCompanions:
         html = await response.text()
         soup = BeautifulSoup(html, "html.parser")
 
-        category = parse_category(url)
         profile = parse_profile_page(soup)
+
+        category = parse_category(url)
         profile['category'] = category
+        
+        img_url = parse_img_url(soup)
+
 
         print(json.dumps(profile, indent=2))
         self.profiles.append(profile)

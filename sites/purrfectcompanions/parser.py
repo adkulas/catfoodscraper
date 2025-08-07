@@ -72,5 +72,13 @@ def parse_category(url):
         return "kitten"
     else:
         return ""
+    
+def parse_image_url(soup):
+    img_elem = soup.select_one('figure img')
+
+    if not img_elem:
+        return ""
+    
+    return img_elem['src']
 
     
