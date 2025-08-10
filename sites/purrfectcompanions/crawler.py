@@ -74,7 +74,7 @@ class PurrfectCompanions:
         category = parse_category(url)
         profile["category"] = category
 
-        img_url = parse_img_url(soup)
+        img_url = parse_image_url(soup)
 
         print(json.dumps(profile, indent=2))
         self.profiles.append(profile)
