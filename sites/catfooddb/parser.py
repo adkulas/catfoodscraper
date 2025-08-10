@@ -36,7 +36,7 @@ def parse_product_review(soup):
     product_name = soup.select_one("h1").get_text(" ", strip=True)
 
     quick_analysis_h4s = soup.find("h3").find_parent().find_all("h4")
-    ingredient_score = len(soup.select("i.ingredient-paws"))
+    ingredient_score = len(soup.select("i.ingredients-paws"))
     nutrition_score = len(soup.select("i.nutrition-paws"))
     potential_allergens = quick_analysis_h4s[2].find("span").get_text(" ", strip=True)
     kcal_100g_estimated = quick_analysis_h4s[3].find("span").get_text(" ", strip=True)
@@ -72,9 +72,20 @@ def parse_product_review(soup):
         potential_allergens_selector
     )
 
+
+    header = soup.find("h3", string="Ingredient Analysis")
+    text_parts = []
+    for tag in header.find_all_next("p"):
+        if "allergens" in tag.get("class", []):
+            break
+        text_parts.append(tag.get_text(" ", strip=True))
+
+    ingredients_summary_text = " ".join(text_parts)
+
+
     allergen_alert_text = ""
 
-    nutritional_summary_list_elem = soup.selector("ul")[-1]
+    nutritional_summary_list_elem = soup.select("ul")[-1]
 
     return {
         "product_name": product_name,
@@ -89,5 +100,5 @@ def parse_product_review(soup):
             "potential_allergens": potential_allergen_ingredients,
         },
         "allergen_alert_text": "",
-        "ingredient_summary_text": "",
+        "ingredient_summary_text": ingredients_summary_text,
     }
