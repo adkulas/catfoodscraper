@@ -7,7 +7,7 @@ import random
 
 class HttpClient:
     def __init__(self, *, proxies=None, delay_range=(0.9, 2.0)):
-        self.client = Client(impersonate=Impersonate.Firefox136, proxies=proxies)
+        self.client = Client(impersonate=Impersonate.Firefox136, proxies=proxies, cookie_store=True)
         self.min_delay, self.max_delay = delay_range
 
     async def get(self, url: str, *, delay=True, **kwargs):

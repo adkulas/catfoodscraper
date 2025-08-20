@@ -10,5 +10,6 @@ dependencies = [
     "furl>=2.1.4",
     "lxml>=6.0.0",
     "pytest>=8.4.1",
+    "pytest-asyncio>=1.1.0",
     "rnet>=2.3.9",
 ]
