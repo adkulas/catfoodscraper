@@ -1,4 +1,5 @@
 from furl import furl
+import re
 
 
 def parse_profile_links(soup, url):
@@ -32,9 +33,11 @@ def parse_profile_page(soup):
 
     medical = {}
     medical_text = ""
+    medical_raw = ""
     for p in all_p_tags:
         if p.get_text(strip=True).startswith("Spayed"):
             medical_text = p.get_text("|")
+            medical_p = p.get_text(" ", strip=True)
             break
     for item in medical_text.split("|"):
         if not item.strip():
@@ -46,6 +49,18 @@ def parse_profile_page(soup):
         value = kv_pair[1].strip()
         medical[key] = value
 
+    # regex check for FIV positive
+    match = re.search( r"FIV:\s*(\w+)", medical_raw )
+    if match:
+        if match.group(1).lower() == "positive":
+            medical["FIV"] = "Positive"
+
+    # regex check for FeLuk positive
+    match = re.search( r"FeLuk:\s*(\w+)", medical_raw )
+    if match:
+        if match.group(1).lower() == "positive":
+            medical["FeLuk"] = "Positive"
+
     description = soup.select_one("div > h3 + p").get_text(" ", strip=True)
 
     return {
@@ -53,8 +68,8 @@ def parse_profile_page(soup):
         "appearance": appearance,
         "medical": medical,
         "description": description,
-        "appearance_raw": appearance_text,
-        "medical_raw": medical_text,
+        "appearance_raw": appearance_text.replace("|", " "),
+        "medical_raw": medical_raw
     }
 
 

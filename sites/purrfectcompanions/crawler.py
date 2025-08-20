@@ -73,6 +73,7 @@ class PurrfectCompanions:
 
         category = parse_category(url)
         profile["category"] = category
+        profile["url"] = url
 
         img_url = parse_image_url(soup)
 
