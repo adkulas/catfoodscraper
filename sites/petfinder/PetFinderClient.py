@@ -109,3 +109,130 @@ class PetFinderClient(HttpClient):
         names = {edge.get("node", {}).get("name") for edge in edges if edge.get("node", {}).get("name")}
 
         return names
+    
+
+    async def update_animal(self, animal_id):
+        headers = {
+            "Cookie": f"PFSESSION={self.pfsession}"
+        }
+
+        response = await self.client.post(
+            "https://svc.petfinder.com/graphql",
+            json= {
+                "operationName": "UpdatePslAnimal",
+                "variables": {
+                    "animal": {
+                        "animalType": "3",
+                        "animalName": "test2",
+                        "description": "The bio...",
+                        "notes": "",
+                        "internalNotes": "",
+                        "tags": [
+                            "Affectionate",
+                            "Smart",
+                            "Quiet",
+                            "Funny",
+                            "Athletic",
+                            "Brave",
+                            "Gentle",
+                            "Friendly",
+                            "Protective",
+                            "Independent",
+                            "Couch",
+                            "Curious",
+                            "Loves",
+                            "Loyal",
+                            "Dignified",
+                            "Playful"
+                        ],
+                        "primaryPhotoId": "",
+                        "behavior": {
+                            "activityLevel": None,
+                            "interactionsOtherAnimals": None,
+                            "houseTrained": 1,
+                            "requiresFencedYard": None,
+                            "knowsBasicCommands": None,
+                            "personalityTraits": [
+                                "Affectionate",
+                                "Smart",
+                                "Quiet",
+                                "Funny",
+                                "Athletic",
+                                "Brave",
+                                "Gentle",
+                                "Friendly",
+                                "Protective",
+                                "Independent",
+                                "Couch",
+                                "Curious",
+                                "Loves",
+                                "Loyal",
+                                "Dignified",
+                                "Playful"
+                            ],
+                            "interactions": {
+                                "otherAnimals": 3,
+                                "cats": 3,
+                                "dogs": 3,
+                                "kids": 3
+                            }
+                        },
+                        "organization": {
+                            "organizationId": "55110",
+                            "legacyOrganizationId": 55110,
+                            "organizationAnimalId": "",
+                            "contactId": "",
+                            "legacyContactId": None,
+                            "locationId": "150641",
+                            "legacyLocationId": 150641,
+                            "internalNotes": "PCON profile info"
+                        },
+                        "physical": {
+                            "birthDate": "2025-04-02",
+                            "coatLength": "Short",
+                            "declawed": False,
+                            "sex": "Female",
+                            "speciesId": 5,
+                            "spayedNeutered": True,
+                            "specialNeeds": False,
+                            "specialNeedsNotes": None,
+                            "vaccinated": True,
+                            "breed": {
+                                "primary": 86,
+                                "secondary": None,
+                                "mixed": False,
+                                "primaryName": "Domestic Short Hair",
+                                "secondaryName": "Unknown"
+                            },
+                            "color": {
+                                "primary": "Black",
+                                "secondary": "Torbie",
+                                "tertiary": "Lilac Point"
+                            },
+                            "size": "Medium",
+                            "age": "Baby"
+                        },
+                        "residency": {
+                            "adoptionDate": None,
+                            "adoptionFee": 0,
+                            "adoptionStatus": None,
+                            "adoptionStatusChangeDate": None,
+                            "displayAdoptionFee": False,
+                            "intakeDate": "2025-08-20",
+                            "intakeType": None,
+                            "transferDate": None,
+                            "transferFromOrganizationId": None
+                        },
+                        "meta": {
+                            "recordStatus": "draft"
+                        }
+                    },
+                    "updateAnimalId": animal_id
+                },
+                "query": "mutation UpdatePslAnimal($updateAnimalId: String!, $animal: AnimalUpdate!) {\n  updateAnimal(id: $updateAnimalId, animal: $animal) {\n    animalName\n    animalType\n    description\n    extendedDescription\n    microchipId\n    primaryPhotoId\n    primaryPhotoUrl\n    notes\n    internalNotes\n    tags\n    importUpdatesEnabled\n    importDeletesEnabled\n    animalId\n    animalTypeName\n    legacyAnimalId\n    platformAnimalId\n    behavior {\n      activityLevel\n      interactionsOtherAnimals\n      houseTrained\n      requiresFencedYard\n      knowsBasicCommands\n      personalityTraits\n      interactions {\n        cats\n        dogs\n        otherAnimals\n        kids\n        __typename\n      }\n      __typename\n    }\n    meta {\n      revision\n      recordStatus\n      create {\n        time\n        identity {\n          client\n          user\n          __typename\n        }\n        __typename\n      }\n      update {\n        time\n        __typename\n      }\n      importDeletesEnabled\n      importUpdatesEnabled\n      publishTime\n      __typename\n    }\n    organization {\n      organizationId\n      legacyOrganizationId\n      organizationAnimalId\n      contactId\n      legacyContactId\n      locationId\n      legacyLocationId\n      internalNotes\n      name\n      display_id\n      __typename\n    }\n    _organization {\n      organizationName\n      organizationType\n      organizationTypeOther\n      displayId\n      taxId\n      primaryPhotoId\n      notes\n      medicalCareProvided\n      missionStatement\n      onsiteVet\n      rehomeProgram\n      supportsRehome\n      spayNeuterPolicy\n      spayNeuterPolicyReason\n      specialServices\n      exportApi\n      exportPartners\n      director\n      employeeCount\n      volunteerCount\n      fosterCount\n      website\n      otherPlatforms\n      animalTypes\n      socialUrl\n      organizationId\n      legacyOrganizationId\n      locations {\n        organizationId\n        legacyLocationId\n        locationName\n        contactName\n        phone\n        email\n        isApptOnly\n        isMapHidden\n        isPublic\n        locationType\n        locationId\n        __typename\n      }\n      adoption {\n        adoptionApplUrl\n        adoptionFeeMax\n        adoptionFeeMin\n        adoptionPolicies\n        annualAdoptions\n        annualFosters\n        annualIntake\n        __typename\n      }\n      primaryContact {\n        legacyContactId\n        firstName\n        lastName\n        phone\n        email\n        linkedin\n        role\n        notes\n        userId\n        legacyUserId\n        contactId\n        __typename\n      }\n      primaryContactId\n      primaryLocationId\n      contacts {\n        legacyContactId\n        firstName\n        lastName\n        phone\n        email\n        linkedin\n        role\n        notes\n        userId\n        legacyUserId\n        contactId\n        __typename\n      }\n      animalTemplates {\n        animalTemplates {\n          legacyAnimalTemplateId\n          templateName\n          animalName\n          description\n          extendedDescription\n          tags\n          animalType\n          animalTemplateId\n          type {\n            id\n            label\n            key\n            attributes\n            coatLengths\n            colors\n            sexes\n            __typename\n          }\n          organization {\n            organizationId\n            legacyOrganizationId\n            organizationAnimalId\n            contactId\n            legacyContactId\n            locationId\n            legacyLocationId\n            internalNotes\n            __typename\n          }\n          species {\n            animalTypeId\n            speciesId\n            name\n            __typename\n          }\n          __typename\n        }\n        nextPageToken\n        __typename\n      }\n      primaryLocation {\n        organizationId\n        legacyLocationId\n        locationName\n        contactName\n        phone\n        email\n        isApptOnly\n        isMapHidden\n        isPublic\n        locationType\n        locationId\n        __typename\n      }\n      mailingAddress {\n        street\n        street2\n        city\n        state\n        postalCode\n        country\n        __typename\n      }\n      publicUrl {\n        url\n        __typename\n      }\n      primaryPhoto {\n        id\n        caption\n        mediaId\n        smallUrl\n        largeUrl\n        fullUrl\n        createdAt\n        updatedAt\n        __typename\n      }\n      photos {\n        id\n        caption\n        mediaId\n        smallUrl\n        largeUrl\n        fullUrl\n        createdAt\n        updatedAt\n        __typename\n      }\n      logo {\n        mediaId\n        createdAt\n        updatedAt\n        __typename\n      }\n      meta {\n        revision\n        recordStatus\n        active\n        deactiveReason\n        enabled\n        lockReason\n        lastActiveTime\n        lastIndexTime\n        __typename\n      }\n      __typename\n    }\n    _location {\n      organizationId\n      legacyLocationId\n      locationName\n      contactName\n      phone\n      email\n      isApptOnly\n      isMapHidden\n      isPublic\n      locationType\n      locationId\n      address {\n        street\n        street2\n        city\n        state\n        postalCode\n        country\n        __typename\n      }\n      geo {\n        latitude\n        longitude\n        __typename\n      }\n      hours {\n        sunday {\n          open\n          close\n          notes\n          isOpen\n          __typename\n        }\n        monday {\n          open\n          close\n          notes\n          isOpen\n          __typename\n        }\n        tuesday {\n          open\n          close\n          notes\n          isOpen\n          __typename\n        }\n        wednesday {\n          open\n          close\n          notes\n          isOpen\n          __typename\n        }\n        thursday {\n          open\n          close\n          notes\n          isOpen\n          __typename\n        }\n        friday {\n          open\n          close\n          notes\n          isOpen\n          __typename\n        }\n        saturday {\n          open\n          close\n          notes\n          isOpen\n          __typename\n        }\n        __typename\n      }\n      organization {\n        organizationName\n        organizationType\n        organizationTypeOther\n        displayId\n        taxId\n        primaryPhotoId\n        notes\n        medicalCareProvided\n        missionStatement\n        onsiteVet\n        rehomeProgram\n        supportsRehome\n        spayNeuterPolicy\n        spayNeuterPolicyReason\n        specialServices\n        exportApi\n        exportPartners\n        director\n        employeeCount\n        volunteerCount\n        fosterCount\n        website\n        otherPlatforms\n        animalTypes\n        socialUrl\n        organizationId\n        legacyOrganizationId\n        primaryContactId\n        primaryLocationId\n        __typename\n      }\n      meta {\n        revision\n        recordStatus\n        __typename\n      }\n      __typename\n    }\n    _contact {\n      legacyContactId\n      firstName\n      lastName\n      phone\n      email\n      linkedin\n      role\n      notes\n      userId\n      legacyUserId\n      contactId\n      __typename\n    }\n    physical {\n      birthDate\n      coatLength\n      declawed\n      sex\n      speciesId\n      speciesName\n      spayedNeutered\n      specialNeeds\n      specialNeedsNotes\n      vaccinated\n      breed {\n        primary\n        primaryName\n        secondary\n        secondaryName\n        mixed\n        __typename\n      }\n      color {\n        primary\n        secondary\n        tertiary\n        __typename\n      }\n      size {\n        label\n        range {\n          min\n          max\n          label\n          __typename\n        }\n        __typename\n      }\n      age {\n        value\n        label\n        rangeLabel\n        __typename\n      }\n      __typename\n    }\n    residency {\n      adoptionDate\n      adoptionFee\n      adoptionFeeWaived\n      adoptionStatus\n      adoptionStatusChangeDate\n      displayAdoptionFee\n      intakeDate\n      intakeType\n      transferDate\n      transferFromOrganizationId\n      __typename\n    }\n    history {\n      field\n      original\n      update\n      changeType\n      changeDate\n      changedBy\n      sectionChanged\n      __typename\n    }\n    adoptionInquiries {\n      adoptionInquiries {\n        id\n        user {\n          firstName\n          lastName\n          email\n          __typename\n        }\n        __typename\n      }\n      totalCount\n      __typename\n    }\n    views {\n      total\n      sum\n      days {\n        date\n        count\n        __typename\n      }\n      __typename\n    }\n    sponsorAPetUrl {\n      url\n      __typename\n    }\n    distance\n    pagination {\n      countPerPage\n      totalCount\n      currentPage\n      totalPages\n      __typename\n    }\n    facets {\n      facet\n      values {\n        value\n        count\n        __typename\n      }\n      __typename\n    }\n    publicUrl\n    debuggingMetadata {\n      source\n      nestedErrors\n      authUsed\n      __typename\n    }\n    __typename\n  }\n}"
+            },
+            headers=headers
+        )
+        print(response.status_code)
+        json_resp = await response.json()
+        print(json.dumps(json_resp, indent=2))

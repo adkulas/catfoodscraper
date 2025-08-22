@@ -14,7 +14,10 @@ class Importer:
         # json_resp = await resp.json()
         # print(json.dumps(json_resp, indent=2))
 
-        # await self.client.create_animal()
+        created_id = await self.client.create_animal()
 
         names = await self.client.Get_Organization_Animal_Names()
         print(names)
+
+        # await self.client.update_animal(created_id)
+        await self.client.update_animal(created_id)
